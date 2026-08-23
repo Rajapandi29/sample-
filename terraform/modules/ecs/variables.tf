@@ -53,4 +53,4 @@ variable "target_group_arn" {
 variable "alert_sns_topic_arn" {
   type = string
 }
->>>>>>> 5ae2a26 (new)
+

@@ -115,4 +115,3 @@ resource "aws_cloudwatch_event_target" "notify_sns" {
   target_id = "send-to-sns"
   arn       = var.alert_sns_topic_arn
 }
->>>>>>> 5ae2a26 (new)

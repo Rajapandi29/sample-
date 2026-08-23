@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/modules/vpc"
+  source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/vpc"
 
 
   project_name         = var.project_name
@@ -45,7 +45,7 @@ resource "aws_sns_topic_policy" "allow_cloudwatch_eventbridge_publish" {
 }
 
 module "alb" {
-  source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/modules/alb"
+  source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/alb"
 
   project_name         = var.project_name
   environment          = var.environment
@@ -53,7 +53,6 @@ module "alb" {
   public_subnet_ids    = module.vpc.public_subnet_ids
   container_port       = var.container_port
   alert_sns_topic_arn  = aws_sns_topic.alerts.arn
->>>>>>> 5ae2a26 (new)
 }
 
 module "ecr" {
@@ -81,4 +80,4 @@ module "ecs" {
   target_group_arn     = module.alb.target_group_arn
   alert_sns_topic_arn  = aws_sns_topic.alerts.arn
 }
->>>>>>> 5ae2a26 (new)
+
