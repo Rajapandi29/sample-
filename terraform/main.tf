@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "s3://terraform-module-23-8/vpc/"
+      source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/vpc"
 
 
   project_name         = var.project_name
@@ -45,7 +45,8 @@ resource "aws_sns_topic_policy" "allow_cloudwatch_eventbridge_publish" {
 }
 
 module "alb" {
-  source = "s3://terraform-module-23-8/alb/"
+      source = "s3::https://s3-us-east-1.amazonaws.com/terraform-module-23-8/alb"
+
 
   project_name         = var.project_name
   environment          = var.environment
