@@ -1,3 +1,30 @@
+<<<<<<< HEAD
+=======
+resource "aws_security_group" "ecs_sg" {
+  name        = "${var.project_name}-${var.environment}-ecs-sg"
+  description = "Allow inbound traffic from ALB to ECS tasks"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port       = var.container_port
+    to_port         = var.container_port
+    protocol        = "tcp"
+    security_groups = [var.alb_sg_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-ecs-sg"
+  }
+}
+
+>>>>>>> 5ae2a26 (new)
 resource "aws_ecs_cluster" "this" {
   name = "${var.project_name}-${var.environment}-cluster"
 }
@@ -36,7 +63,14 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([{
     name  = var.project_name
     image = var.container_image
+<<<<<<< HEAD
     portMappings = [{ containerPort = var.container_port, protocol = "tcp" }]
+=======
+    portMappings = [{
+      containerPort = var.container_port
+      protocol      = "tcp"
+    }]
+>>>>>>> 5ae2a26 (new)
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -56,9 +90,15 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
 
   network_configuration {
+<<<<<<< HEAD
     subnets          = var.subnet_ids
     security_groups  = [var.security_group_id]
     assign_public_ip = true
+=======
+    subnets          = var.private_subnet_ids
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+>>>>>>> 5ae2a26 (new)
   }
 
   load_balancer {
@@ -67,3 +107,30 @@ resource "aws_ecs_service" "app" {
     container_port   = var.container_port
   }
 }
+<<<<<<< HEAD
+=======
+
+# ---------------- Extra alert: notify when an individual ECS task stops (deploy/crash visibility) ----------------
+# (The MAIN "app down" alert is the ALB HealthyHostCount alarm in the alb module.
+#  This one is a secondary signal — useful to see *why* it went down, e.g. crash vs deploy.)
+
+resource "aws_cloudwatch_event_rule" "ecs_task_stopped" {
+  name        = "${var.project_name}-${var.environment}-ecs-task-stopped"
+  description = "Fires when an ECS task in this cluster stops"
+
+  event_pattern = jsonencode({
+    source        = ["aws.ecs"]
+    "detail-type" = ["ECS Task State Change"]
+    detail = {
+      lastStatus = ["STOPPED"]
+      clusterArn = [aws_ecs_cluster.this.arn]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "notify_sns" {
+  rule      = aws_cloudwatch_event_rule.ecs_task_stopped.name
+  target_id = "send-to-sns"
+  arn       = var.alert_sns_topic_arn
+}
+>>>>>>> 5ae2a26 (new)

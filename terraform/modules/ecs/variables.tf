@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 variable "project_name"      { type = string }
 variable "environment"       { type = string }
 variable "aws_region"        { type = string }
@@ -10,3 +11,60 @@ variable "cpu"                { type = number, default = 256 }
 variable "memory"             { type = number, default = 512 }
 variable "desired_count"      { type = number, default = 1 }
 variable "target_group_arn"   { type = string }
+=======
+variable "project_name" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "aws_region" {
+  type = string
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "alb_sg_id" {
+  type = string
+}
+
+variable "container_image" {
+  type = string
+}
+
+variable "container_port" {
+  type    = number
+  default = 3000
+}
+
+variable "cpu" {
+  type    = number
+  default = 256
+}
+
+variable "memory" {
+  type    = number
+  default = 512
+}
+
+variable "desired_count" {
+  type    = number
+  default = 1
+}
+
+variable "target_group_arn" {
+  type = string
+}
+
+variable "alert_sns_topic_arn" {
+  type = string
+}
+>>>>>>> 5ae2a26 (new)
