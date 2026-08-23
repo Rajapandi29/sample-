@@ -1,9 +1,7 @@
 terraform {
   backend "s3" {
-    # This is your EXISTING state bucket (different from terraform-module-23-8,
-    # which only stores reusable module zip files). Replace with your real state bucket name.
-    bucket = "REPLACE_WITH_YOUR_STATE_BUCKET_NAME"
-    key    = "sample-project/dev/terraform.tfstate"
+    bucket = "my-terraformstate-18-8"
+    key    = "my-terraformstate-18-8/buckets/"
     region = "us-east-1"
     encrypt = true
 

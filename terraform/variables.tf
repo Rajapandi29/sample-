@@ -10,11 +10,8 @@ variable "environment" {
 
 variable "aws_region" {
   type    = string
-<<<<<<< HEAD
-  default = "ap-south-1"
-=======
+
   default = "us-east-1"
->>>>>>> 5ae2a26 (new)
 }
 
 variable "vpc_cidr" {
@@ -27,14 +24,12 @@ variable "public_subnet_cidrs" {
   default = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
-<<<<<<< HEAD
-=======
 variable "private_subnet_cidrs" {
   type    = list(string)
   default = ["10.0.11.0/24", "10.0.12.0/24"]
 }
 
->>>>>>> 5ae2a26 (new)
+
 variable "container_port" {
   type    = number
   default = 3000
@@ -53,9 +48,6 @@ variable "memory" {
 variable "desired_count" {
   type    = number
   default = 1
-<<<<<<< HEAD
-}
-=======
 }
 
 variable "alert_email" {
@@ -65,7 +57,6 @@ variable "alert_email" {
 
 variable "alert_phone" {
   type        = string
-  description = "Optional phone number (E.164 format e.g. +91XXXXXXXXXX) for SMS alerts"
+  description = "Optional phone number for SMS alerts"
   default     = ""
 }
->>>>>>> 5ae2a26 (new)
