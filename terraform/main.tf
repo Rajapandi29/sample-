@@ -8,8 +8,6 @@ module "vpc" {
   private_subnet_cidrs = var.private_subnet_cidrs
 }
 
-# Central alerting topic — both the ALB "app down" alarm and the ECS
-# "task stopped" event send their notifications here.
 resource "aws_sns_topic" "alerts" {
   name = "${var.project_name}-${var.environment}-alerts"
 }
@@ -31,7 +29,6 @@ resource "aws_sns_topic_policy" "allow_cloudwatch_eventbridge_publish" {
   arn = aws_sns_topic.alerts.arn
 
   policy = jsonencode({
-    Version = "2012-10-17"
     Statement = [{
       Sid       = "AllowPublish"
       Effect    = "Allow"
