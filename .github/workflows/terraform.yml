@@ -102,9 +102,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           ECR_REPOSITORY: sample-dev
           IMAGE_TAG: ${{ github.sha }}
+      - name: Tag latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-      - run: |
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag sample-dev:${{ github.sha }} \
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:latest
+
+      - name: Push latest
+        run: |
+          docker push \
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:latest
