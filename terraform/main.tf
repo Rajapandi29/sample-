@@ -29,6 +29,7 @@ resource "aws_sns_topic_policy" "allow_cloudwatch_eventbridge_publish" {
   arn = aws_sns_topic.alerts.arn
 
   policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Sid       = "AllowPublish"
       Effect    = "Allow"

@@ -10,4 +10,4 @@ cpu                  = 256
 memory               = 512
 desired_count        = 1
 alert_email = "rp6321613@gmail.com"
-alert_phone = "+91 7604961578"
+alert_phone = "+917604961578"
