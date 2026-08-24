@@ -58,24 +58,6 @@ jobs:
       - run: terraform init
       - run: terraform apply -auto-approve
 
-  terraform-destroy:
-    runs-on: ubuntu-latest
-    environment: production
-    defaults:
-      run:
-        working-directory: terraform
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - run: terraform init
-      - run: terraform destroy -auto-approve
-
   docker-build-deploy:
     needs: terraform-apply
     runs-on: ubuntu-latest
@@ -106,3 +88,24 @@ jobs:
         run: |
           docker push \
           646362344732.dkr.ecr.us-east-1.amazonaws.com/sample--dev:${{ github.sha }}:latest
+
+          
+  terraform-destroy:
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - run: terraform init
+      - run: terraform destroy -auto-approve
+
+  
