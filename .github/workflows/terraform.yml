@@ -77,7 +77,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t sample--dev:${{ github.sha }} .
+          docker build -t sample--dev:${{ github.sha }}:latest .
 
       - name: Tag Docker image
         run: |
@@ -89,7 +89,7 @@ jobs:
           docker push \
           646362344732.dkr.ecr.us-east-1.amazonaws.com/sample--dev:${{ github.sha }}:latest
 
-          
+
   terraform-destroy:
     runs-on: ubuntu-latest
     environment: production
