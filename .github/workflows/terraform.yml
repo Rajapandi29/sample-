@@ -97,17 +97,16 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag and push Docker image
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          ECR_REPOSITORY: sample-dev
-          IMAGE_TAG: ${{ github.sha }}
-      - name: Tag latest
+      - name: Build Docker image
+        run: |
+          docker build -t sample-dev:${{ github.sha }} .
+
+      - name: Tag Docker image
         run: |
           docker tag sample-dev:${{ github.sha }} \
-          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:latest
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:${{ github.sha }}
 
-      - name: Push latest
+      - name: Push Docker image
         run: |
           docker push \
-          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:latest
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:${{ github.sha }}
