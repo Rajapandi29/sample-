@@ -23,7 +23,6 @@ on:
 
 jobs:
   terraform-plan:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'plan')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,7 +41,6 @@ jobs:
       - run: terraform plan
 
   terraform-apply:
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
     runs-on: ubuntu-latest
     environment: production
     defaults:
@@ -61,7 +59,6 @@ jobs:
       - run: terraform apply -auto-approve
 
   terraform-destroy:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' && github.event.inputs.confirm_destroy == 'destroy'
     runs-on: ubuntu-latest
     environment: production
     defaults:
@@ -81,7 +78,6 @@ jobs:
 
   docker-build-deploy:
     needs: terraform-apply
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
