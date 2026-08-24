@@ -95,14 +95,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t sample-dev:${{ github.sha }} .
+          docker build -t sample--dev:${{ github.sha }} .
 
       - name: Tag Docker image
         run: |
-          docker tag sample-dev:${{ github.sha }}:latest \
-          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:${{ github.sha }}:latest
+          docker tag sample--dev:${{ github.sha }}:latest \
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample--dev:${{ github.sha }}:latest
 
       - name: Push Docker image
         run: |
           docker push \
-          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample-dev:${{ github.sha }}:latest
+          646362344732.dkr.ecr.us-east-1.amazonaws.com/sample--dev:${{ github.sha }}:latest
