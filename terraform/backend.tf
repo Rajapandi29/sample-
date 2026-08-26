@@ -4,6 +4,5 @@ terraform {
     key    = "buckets/my-terraformstate-18-8"
     region = "us-east-1"
     encrypt = true
-
   }
 }
