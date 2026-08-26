@@ -22,7 +22,7 @@ on:
         default: ''
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: todo-app-dev
+  ECR_REPOSITORY: sample--dev
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
