@@ -30,6 +30,10 @@ env:
 
 jobs:
 
+  # ============================================================
+  # TERRAFORM PLAN
+  # ============================================================
+
   terraform-plan:
     runs-on: ubuntu-latest
 
@@ -61,6 +65,10 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
+
+  # ============================================================
+  # TERRAFORM APPLY
+  # ============================================================
 
   terraform-apply:
     needs: terraform-plan
@@ -94,6 +102,11 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
+
+  # ============================================================
+  # DOCKER BUILD AND DEPLOY
+  # ============================================================
+
   docker-build-deploy:
     needs: terraform-apply
 
@@ -125,4 +138,3 @@ jobs:
         run: |
           docker push \
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
-
