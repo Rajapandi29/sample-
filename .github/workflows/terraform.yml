@@ -3,8 +3,10 @@ name: CI-CD
 on:
   pull_request:
     branches: [main]
+
   push:
     branches: [main]
+
   workflow_dispatch:
     inputs:
       action:
@@ -16,89 +18,111 @@ on:
           - plan
           - apply
           - destroy
+
       confirm_destroy:
         description: 'Type "destroy" to confirm (only needed for destroy)'
         required: false
         default: ''
+
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: sample--dev
+
 jobs:
+
   terraform-plan:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: terraform
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - run: terraform init
-      - run: terraform validate
-      - run: terraform plan
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+
 
   terraform-apply:
+    needs: terraform-plan
+
     runs-on: ubuntu-latest
+
     environment: production
+
     defaults:
       run:
         working-directory: terraform
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - run: terraform init
-      - run: terraform apply -auto-approve
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
 
   docker-build-deploy:
     needs: terraform-apply
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
-        run: docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest .
+        run: |
+          docker build \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest .
 
       - name: Push Docker image
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
-  #terraform-destroy:
-   # runs-on: ubuntu-latest
-    #environment: production
-    #defaults:
-     # run:
-      #  working-directory: terraform
-    #steps:
-     # - uses: actions/checkout@v4
-      #- uses: hashicorp/setup-terraform@v3
-      #- name: Configure AWS credentials
-       # uses: aws-actions/configure-aws-credentials@v4
-        #with:
-         # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #aws-region: ${{ env.AWS_REGION }}
-      #- run: terraform init
-      #S- run: terraform destroy -auto-approve
+        run: |
+          docker push \
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
-  
