@@ -25,8 +25,8 @@ const body = (req) =>
   new Promise((resolve, reject) => {
     let text = '';
 
-    req.on('data', (c) => {
-      text += c;
+    req.on('data', (chunk) => {
+      text += chunk;
     });
 
     req.on('end', () => {
@@ -39,10 +39,13 @@ const body = (req) =>
   });
 
 const token = (req) =>
-  (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  (req.headers.authorization || '').replace(
+    /^Bearer\s+/i,
+    ''
+  );
 
 const userFor = (req) =>
-  users.find((u) => u.id === sessions.get(token(req)));
+  users.find((user) => user.id === sessions.get(token(req)));
 
 const safeUser = ({ id, name, email }) => ({
   id,
@@ -51,37 +54,35 @@ const safeUser = ({ id, name, email }) => ({
 });
 
 const staticFile = (res, name) => {
-  fs.readFile(
-    path.join(__dirname, 'public', name),
-    (err, file) => {
-      if (err) {
-        return send(res, 404, {
-          error: 'Not found'
-        });
-      }
+  const filePath = path.join(__dirname, 'public', name);
 
-      let type = 'text/html';
-
-      if (name.endsWith('.css')) {
-        type = 'text/css';
-      } else if (name.endsWith('.js')) {
-        type = 'text/javascript';
-      }
-
-      res.writeHead(200, {
-        'Content-Type': `${type}; charset=utf-8`
+  fs.readFile(filePath, (err, file) => {
+    if (err) {
+      return send(res, 404, {
+        error: 'Not found'
       });
-
-      res.end(file);
     }
-  );
+
+    let type = 'text/html';
+
+    if (name.endsWith('.css')) {
+      type = 'text/css';
+    } else if (name.endsWith('.js')) {
+      type = 'text/javascript';
+    }
+
+    res.writeHead(200, {
+      'Content-Type': `${type}; charset=utf-8`
+    });
+
+    res.end(file);
+  });
 };
 
 http.createServer(async (req, res) => {
-
   /*
    * --------------------------------------------------
-   * HANDLE /sample PREFIX
+   * ALB /sample PREFIX HANDLING
    * --------------------------------------------------
    *
    * ALB sends:
@@ -93,7 +94,7 @@ http.createServer(async (req, res) => {
    * /sample/api/health
    * /sample/api/tasks
    *
-   * Convert them internally to:
+   * Internally convert them to:
    *
    * /
    * /
@@ -127,7 +128,6 @@ http.createServer(async (req, res) => {
     .split('/')
     .filter(Boolean);
 
-
   /*
    * --------------------------------------------------
    * FRONTEND
@@ -151,7 +151,6 @@ http.createServer(async (req, res) => {
     );
   }
 
-
   /*
    * --------------------------------------------------
    * HEALTH CHECK
@@ -167,7 +166,6 @@ http.createServer(async (req, res) => {
       time: new Date().toISOString()
     });
   }
-
 
   /*
    * --------------------------------------------------
@@ -200,8 +198,8 @@ http.createServer(async (req, res) => {
 
       if (
         users.some(
-          (u) =>
-            u.email ===
+          (user) =>
+            user.email ===
             email.trim().toLowerCase()
         )
       ) {
@@ -225,14 +223,12 @@ http.createServer(async (req, res) => {
           'Account created. Please log in.',
         user: safeUser(user)
       });
-
-    } catch (e) {
+    } catch (error) {
       return send(res, 400, {
-        error: e.message
+        error: error.message
       });
     }
   }
-
 
   /*
    * --------------------------------------------------
@@ -251,10 +247,10 @@ http.createServer(async (req, res) => {
       } = await body(req);
 
       const user = users.find(
-        (u) =>
-          u.email ===
+        (user) =>
+          user.email ===
             email?.trim().toLowerCase() &&
-          u.passwordHash ===
+          user.passwordHash ===
             hash(password || '')
       );
 
@@ -276,14 +272,12 @@ http.createServer(async (req, res) => {
         token: sessionToken,
         user: safeUser(user)
       });
-
-    } catch (e) {
+    } catch (error) {
       return send(res, 400, {
-        error: e.message
+        error: error.message
       });
     }
   }
-
 
   /*
    * --------------------------------------------------
@@ -301,7 +295,6 @@ http.createServer(async (req, res) => {
       message: 'Logged out.'
     });
   }
-
 
   /*
    * --------------------------------------------------
@@ -321,7 +314,6 @@ http.createServer(async (req, res) => {
     });
   }
 
-
   /*
    * --------------------------------------------------
    * CURRENT USER
@@ -339,7 +331,6 @@ http.createServer(async (req, res) => {
     );
   }
 
-
   /*
    * --------------------------------------------------
    * GET TASKS
@@ -354,11 +345,10 @@ http.createServer(async (req, res) => {
       res,
       200,
       tasks.filter(
-        (t) => t.userId === user.id
+        (task) => task.userId === user.id
       )
     );
   }
-
 
   /*
    * --------------------------------------------------
@@ -396,14 +386,12 @@ http.createServer(async (req, res) => {
         201,
         task
       );
-
-    } catch (e) {
+    } catch (error) {
       return send(res, 400, {
-        error: e.message
+        error: error.message
       });
     }
   }
-
 
   /*
    * --------------------------------------------------
@@ -414,9 +402,9 @@ http.createServer(async (req, res) => {
   const taskId = parts[2];
 
   const index = tasks.findIndex(
-    (t) =>
-      t.id === taskId &&
-      t.userId === user.id
+    (task) =>
+      task.id === taskId &&
+      task.userId === user.id
   );
 
   if (
@@ -424,7 +412,6 @@ http.createServer(async (req, res) => {
     parts[1] === 'tasks' &&
     taskId
   ) {
-
     if (index < 0) {
       return send(res, 404, {
         error:
@@ -432,9 +419,8 @@ http.createServer(async (req, res) => {
       });
     }
 
-
     /*
-     * PATCH TASK
+     * PATCH
      */
 
     if (req.method === 'PATCH') {
@@ -454,17 +440,15 @@ http.createServer(async (req, res) => {
           200,
           tasks[index]
         );
-
-      } catch (e) {
+      } catch (error) {
         return send(res, 400, {
-          error: e.message
+          error: error.message
         });
       }
     }
 
-
     /*
-     * DELETE TASK
+     * DELETE
      */
 
     if (req.method === 'DELETE') {
@@ -476,14 +460,13 @@ http.createServer(async (req, res) => {
     }
   }
 
-
   /*
    * --------------------------------------------------
    * UNKNOWN ROUTE
    * --------------------------------------------------
    */
 
-  send(res, 404, {
+  return send(res, 404, {
     error: 'Route not found.'
   });
 
@@ -496,3 +479,4 @@ http.createServer(async (req, res) => {
     );
   }
 );
+
