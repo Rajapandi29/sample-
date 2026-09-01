@@ -81,42 +81,67 @@ const staticFile = (res, name) => {
 
 http.createServer(async (req, res) => {
 
-  /*
-   * --------------------------------------------------
-   * ALB /sample PREFIX HANDLING
-   * --------------------------------------------------
-   *
-   * ALB sends:
-   *
-   * /sample
-   * /sample/
-   * /sample/app.js
-   * /sample/styles.css
-   * /sample/api/health
-   * /sample/api/tasks
-   *
-   * Convert internally:
-   *
-   * /sample              -> /
-   * /sample/             -> /
-   * /sample/app.js       -> /app.js
-   * /sample/styles.css   -> /styles.css
-   * /sample/api/health   -> /api/health
-   * /sample/api/tasks    -> /api/tasks
-   */
-
   const originalUrl = new URL(
     req.url,
     `http://${req.headers.host}`
   );
 
-  let requestPath = originalUrl.pathname;
+  const originalPath = originalUrl.pathname;
+
+  /*
+   * --------------------------------------------------
+   * FRONTEND - SERVE AT /api-login-lab
+   * --------------------------------------------------
+   */
 
   if (
-    requestPath === '/sample' ||
-    requestPath.startsWith('/sample/')
+    req.method === 'GET' &&
+    originalPath === '/api-login-lab'
   ) {
-    requestPath = requestPath.replace(/^\/sample/, '') || '/';
+    return staticFile(res, 'index.html');
+  }
+
+  if (
+    req.method === 'GET' &&
+    originalPath === '/api-login-lab/app.js'
+  ) {
+    return staticFile(res, 'app.js');
+  }
+
+  if (
+    req.method === 'GET' &&
+    originalPath === '/api-login-lab/styles.css'
+  ) {
+    return staticFile(res, 'styles.css');
+  }
+
+  /*
+   * --------------------------------------------------
+   * REJECT ROOT PATH
+   * --------------------------------------------------
+   */
+
+  if (
+    req.method === 'GET' &&
+    (originalPath === '/' || originalPath === '')
+  ) {
+    return send(res, 404, {
+      error: 'Application is available at /api-login-lab'
+    });
+  }
+
+  /*
+   * --------------------------------------------------
+   * PREFIX HANDLING FOR API (/api-login-lab/api/*)
+   * --------------------------------------------------
+   */
+
+  let requestPath = originalPath;
+
+  if (requestPath.startsWith('/api-login-lab/api/')) {
+    requestPath = requestPath.replace(/^\/api-login-lab/, '');
+  } else if (requestPath.startsWith('/sample/api/')) {
+    requestPath = requestPath.replace(/^\/sample/, '');
   }
 
   const url = new URL(
@@ -127,30 +152,6 @@ http.createServer(async (req, res) => {
   const parts = url.pathname
     .split('/')
     .filter(Boolean);
-
-
-  /*
-   * --------------------------------------------------
-   * FRONTEND
-   * --------------------------------------------------
-   */
-
-  if (
-    req.method === 'GET' &&
-    url.pathname === '/'
-  ) {
-    return staticFile(res, 'index.html');
-  }
-
-  if (
-    req.method === 'GET' &&
-    ['/app.js', '/styles.css'].includes(url.pathname)
-  ) {
-    return staticFile(
-      res,
-      url.pathname.slice(1)
-    );
-  }
 
 
   /*
