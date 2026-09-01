@@ -27,4 +27,6 @@ http.createServer(async (req, res) => {
   const taskId = parts[2], index = tasks.findIndex(t => t.id === taskId && t.userId === user.id);
   if (parts[0] === 'api' && parts[1] === 'tasks' && taskId) { if (index < 0) return send(res, 404, { error: 'Task not found.' }); if (req.method === 'PATCH') { try { const { completed } = await body(req); if (typeof completed === 'boolean') tasks[index].completed = completed; return send(res, 200, tasks[index]); } catch (e) { return send(res, 400, { error: e.message }); } } if (req.method === 'DELETE') return send(res, 200, tasks.splice(index, 1)[0]); }
   send(res, 404, { error: 'Route not found.' });
-}).listen(port, () => console.log(`API Login Lab running at http://localhost:${port}`));
+}).listen(port, '0.0.0.0', () => {
+  console.log(`API Login Lab running on port ${port}`);
+});
