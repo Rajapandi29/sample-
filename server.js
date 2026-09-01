@@ -1,4 +1,3 @@
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +16,6 @@ const send = (res, status, data) => {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8'
   });
-
   res.end(JSON.stringify(data));
 };
 
@@ -45,7 +43,9 @@ const token = (req) =>
   );
 
 const userFor = (req) =>
-  users.find((user) => user.id === sessions.get(token(req)));
+  users.find(
+    (user) => user.id === sessions.get(token(req))
+  );
 
 const safeUser = ({ id, name, email }) => ({
   id,
@@ -80,6 +80,7 @@ const staticFile = (res, name) => {
 };
 
 http.createServer(async (req, res) => {
+
   /*
    * --------------------------------------------------
    * ALB /sample PREFIX HANDLING
@@ -94,14 +95,14 @@ http.createServer(async (req, res) => {
    * /sample/api/health
    * /sample/api/tasks
    *
-   * Internally convert them to:
+   * Convert internally:
    *
-   * /
-   * /
-   * /app.js
-   * /styles.css
-   * /api/health
-   * /api/tasks
+   * /sample              -> /
+   * /sample/             -> /
+   * /sample/app.js       -> /app.js
+   * /sample/styles.css   -> /styles.css
+   * /sample/api/health   -> /api/health
+   * /sample/api/tasks    -> /api/tasks
    */
 
   const originalUrl = new URL(
@@ -115,8 +116,7 @@ http.createServer(async (req, res) => {
     requestPath === '/sample' ||
     requestPath.startsWith('/sample/')
   ) {
-    requestPath =
-      requestPath.replace(/^\/sample/, '') || '/';
+    requestPath = requestPath.replace(/^\/sample/, '') || '/';
   }
 
   const url = new URL(
@@ -127,6 +127,7 @@ http.createServer(async (req, res) => {
   const parts = url.pathname
     .split('/')
     .filter(Boolean);
+
 
   /*
    * --------------------------------------------------
@@ -151,6 +152,7 @@ http.createServer(async (req, res) => {
     );
   }
 
+
   /*
    * --------------------------------------------------
    * HEALTH CHECK
@@ -166,6 +168,7 @@ http.createServer(async (req, res) => {
       time: new Date().toISOString()
     });
   }
+
 
   /*
    * --------------------------------------------------
@@ -223,12 +226,14 @@ http.createServer(async (req, res) => {
           'Account created. Please log in.',
         user: safeUser(user)
       });
+
     } catch (error) {
       return send(res, 400, {
         error: error.message
       });
     }
   }
+
 
   /*
    * --------------------------------------------------
@@ -272,12 +277,14 @@ http.createServer(async (req, res) => {
         token: sessionToken,
         user: safeUser(user)
       });
+
     } catch (error) {
       return send(res, 400, {
         error: error.message
       });
     }
   }
+
 
   /*
    * --------------------------------------------------
@@ -295,6 +302,7 @@ http.createServer(async (req, res) => {
       message: 'Logged out.'
     });
   }
+
 
   /*
    * --------------------------------------------------
@@ -314,6 +322,7 @@ http.createServer(async (req, res) => {
     });
   }
 
+
   /*
    * --------------------------------------------------
    * CURRENT USER
@@ -330,6 +339,7 @@ http.createServer(async (req, res) => {
       safeUser(user)
     );
   }
+
 
   /*
    * --------------------------------------------------
@@ -349,6 +359,7 @@ http.createServer(async (req, res) => {
       )
     );
   }
+
 
   /*
    * --------------------------------------------------
@@ -386,12 +397,14 @@ http.createServer(async (req, res) => {
         201,
         task
       );
+
     } catch (error) {
       return send(res, 400, {
         error: error.message
       });
     }
   }
+
 
   /*
    * --------------------------------------------------
@@ -412,6 +425,7 @@ http.createServer(async (req, res) => {
     parts[1] === 'tasks' &&
     taskId
   ) {
+
     if (index < 0) {
       return send(res, 404, {
         error:
@@ -419,8 +433,9 @@ http.createServer(async (req, res) => {
       });
     }
 
+
     /*
-     * PATCH
+     * PATCH TASK
      */
 
     if (req.method === 'PATCH') {
@@ -440,6 +455,7 @@ http.createServer(async (req, res) => {
           200,
           tasks[index]
         );
+
       } catch (error) {
         return send(res, 400, {
           error: error.message
@@ -447,8 +463,9 @@ http.createServer(async (req, res) => {
       }
     }
 
+
     /*
-     * DELETE
+     * DELETE TASK
      */
 
     if (req.method === 'DELETE') {
@@ -459,6 +476,7 @@ http.createServer(async (req, res) => {
       );
     }
   }
+
 
   /*
    * --------------------------------------------------
